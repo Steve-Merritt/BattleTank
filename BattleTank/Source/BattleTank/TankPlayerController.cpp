@@ -7,17 +7,7 @@
 
 void ATankPlayerController::BeginPlay()
 {
-    Super::BeginPlay();
-
-    ATank* ControlledTank = GetControlledTank();
-    if (!ControlledTank)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Could not get player controlled tank."));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Got player controlled tank %s"), *ControlledTank->GetName());
-    }   
+    Super::BeginPlay();  
 }
 
 // Called every frame
