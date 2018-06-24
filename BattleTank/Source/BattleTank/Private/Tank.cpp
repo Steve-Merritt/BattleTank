@@ -32,7 +32,8 @@ void ATank::AimAt(FVector HitLocation)
 
 void ATank::Fire()
 {
-    bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+    //bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+    bool isReloaded = (GetWorld()->TimeSeconds - LastFireTime) > ReloadTimeInSeconds;
 
     if (Barrel && isReloaded)
     {
@@ -43,7 +44,8 @@ void ATank::Fire()
             Barrel->GetSocketRotation("Projectile"));
 
         Projectile->Launch(LaunchSpeed);
-        LastFireTime = FPlatformTime::Seconds();
+        //LastFireTime = FPlatformTime::Seconds();
+        LastFireTime = GetWorld()->TimeSeconds;
     }
 }
 
