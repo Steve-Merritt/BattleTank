@@ -3,6 +3,7 @@
 #include "TankAimingComponent.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Projectile.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,9 +13,15 @@ UTankAimingComponent::UTankAimingComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
+void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
-    if (!Barrel) { return; }
+    Barrel = BarrelToSet;
+    Turret = TurretToSet;
+}
+
+void UTankAimingComponent::AimAt(FVector HitLocation)
+{
+    if (!ensure(Barrel)) { return; }
 
     FVector OutLaunchVelocity;
     FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
@@ -39,20 +46,10 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
     }
 }
 
-void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
-{
-    if (!BarrelToSet) return;
-    Barrel = BarrelToSet;
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
-{
-    if (!TurretToSet) return;
-    Turret = TurretToSet;
-}
-
 void UTankAimingComponent::MoveBarrelTowards(const FVector& AimDirection)
 {
+    if (!ensure(Barrel && Turret)) { return; }
+
     // Work out difference between current barrel rotation and aim direction
     auto BarrelRotator = Barrel->GetForwardVector().Rotation();
     auto AimAsRotator = AimDirection.Rotation();
@@ -60,4 +57,26 @@ void UTankAimingComponent::MoveBarrelTowards(const FVector& AimDirection)
 
     Barrel->Elevate(DeltaRotator.Pitch);
     Turret->Rotate(DeltaRotator.Yaw);
+}
+
+void UTankAimingComponent::Fire()
+{
+    if (!ensure(Barrel)) { return; }
+
+    bool isReloaded = (GetWorld()->TimeSeconds - LastFireTime) > ReloadTimeInSeconds;
+
+    if (isReloaded)
+    {
+        // Spawn a projectile at the socket location on the barrel
+        auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+            ProjectileBlueprint,
+            Barrel->GetSocketLocation("Projectile"),
+            Barrel->GetSocketRotation("Projectile"));
+
+        if (!ensure(Projectile)) { return; }
+
+        Projectile->Launch(LaunchSpeed);
+
+        LastFireTime = GetWorld()->TimeSeconds;
+    }
 }

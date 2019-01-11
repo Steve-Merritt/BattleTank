@@ -1,48 +1,36 @@
 // Copyright Azimuth Games
 
 #include "TankAIController.h"
-#include "Tank.h"
+#include "TankAimingComponent.h"
 #include "Engine/World.h"
 
 void ATankAIController::BeginPlay()
 {
     Super::BeginPlay();
-}
 
-ATank* ATankAIController::GetControlledTank() const
-{
-    return Cast<ATank>(GetPawn());
-}
-
-ATank* ATankAIController::GetPlayerTank() const
-{
-    auto PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-    if (!PlayerPawn)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[AIController] No Player Pawn found."));
-        return nullptr;
-    }
-
-    return Cast<ATank>(PlayerPawn);
+    auto TankAimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+    if (!ensure(TankAimingComponent)) { return; }
+    AimingComponent = TankAimingComponent;
 }
 
 void ATankAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    auto PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
-    auto ControlledTank = Cast<ATank>(GetPawn());
+    if (!ensure(AimingComponent)) { return; }
 
-    if (PlayerTank)
-    {
-        // Move towards player
-        MoveToActor(PlayerTank, AcceptanceRadius);
+    auto PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
+    auto ControlledTank = GetPawn();
 
-        // Aim towards player
-        ControlledTank->AimAt(GetPlayerTank()->GetActorLocation());
+    if (!ensure(PlayerTank && ControlledTank)) { return; }
 
-        // Fire if ready
-        ControlledTank->Fire();
-    }
+    // Move towards player
+    MoveToActor(PlayerTank, AcceptanceRadius);
+
+    // Aim towards player
+    AimingComponent->AimAt(PlayerTank->GetActorLocation());
+
+    // Fire if ready
+    AimingComponent->Fire(); // TODO fix firing
 }
 
