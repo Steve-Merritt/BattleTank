@@ -18,7 +18,8 @@ enum class EFiringState : uint8
 { 
     Locked,
     Aiming,
-    Reloading 
+    Reloading,
+    OutOfAmmo
 };
 
 // Hold's barrel's properties and methods
@@ -36,25 +37,38 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Firing")
     void Fire();
 
+    UFUNCTION(BlueprintCallable, Category = "Firing")
+    int GetRoundsLeft() const;
+
+    EFiringState GetFiringState() const;
+
 protected:
-    UPROPERTY(BlueprintReadOnly, Category = "State")
-    EFiringState FiringState = EFiringState::Aiming;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Setup")
-    TSubclassOf<AProjectile> ProjectileBlueprint;
-
     UTankAimingComponent();
+
+    virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+    void MoveBarrelTowards(const FVector& AimDirection);
+    bool IsBarrelMoving();
 
     UTankBarrel* Barrel = nullptr;
     UTankTurret* Turret = nullptr;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Firing")
-    float LaunchSpeed = 4000;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
+    TSubclassOf<AProjectile> ProjectileBlueprint;
+
+    UPROPERTY(BlueprintReadOnly, Category = "State")
+    EFiringState FiringState = EFiringState::Reloading;
 
     UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float ReloadTimeInSeconds = 3;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Firing")
+    float LaunchSpeed = 4000;
+
     double LastFireTime = 0;
 
-    void MoveBarrelTowards(const FVector& AimDirection);
+    FVector AimDirection;
+
+    int RoundsLeft = 3;
 };

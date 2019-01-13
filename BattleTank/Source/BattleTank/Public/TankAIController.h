@@ -25,6 +25,6 @@ protected:
     UPROPERTY(BlueprintReadOnly)
     UTankAimingComponent* AimingComponent = nullptr;
 
-private:
-    float AcceptanceRadius = 300;
+    UPROPERTY(EditAnywhere, Category = "Setup")
+    float AcceptanceRadius = 8000;
 };
