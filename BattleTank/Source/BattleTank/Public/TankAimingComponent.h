@@ -61,10 +61,10 @@ protected:
     EFiringState FiringState = EFiringState::Reloading;
 
     UPROPERTY(EditDefaultsOnly, Category = "Firing")
-    float ReloadTimeInSeconds = 0.3f;
+    float ReloadTimeInSeconds = 3.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Firing")
-    float LaunchSpeed = 10000;
+    float LaunchSpeed = 3500.0;
 
     UPROPERTY(EditDefaultsOnly, Category = "Firing")
     int32 RoundsLeft = 20;
