@@ -48,7 +48,7 @@ protected:
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-    void MoveBarrelTowards(const FVector& AimDirection);
+    void MoveBarrelTowards();
     bool IsBarrelMoving();
 
     UTankBarrel* Barrel = nullptr;

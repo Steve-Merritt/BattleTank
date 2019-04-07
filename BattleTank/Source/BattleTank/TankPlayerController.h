@@ -18,7 +18,7 @@ class BATTLETANK_API ATankPlayerController : public APlayerController
 	
 public:
 	void BeginPlay() override;
-
+    void SetPawn(APawn* InPawn) override;
     void Tick(float DeltaTime) override;
 
 protected:
@@ -49,4 +49,7 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "Firing")
     float LaunchSpeed = 4000;
+
+    UFUNCTION()
+    void OnPossessedTankDeath();
 };
