@@ -7,7 +7,7 @@
 #include "SprungWheel.generated.h"
 
 class UPhysicsConstraintComponent;
-class UStaticMeshComponent;
+class USphereComponent;
 
 UCLASS()
 class BATTLETANK_API ASprungWheel : public AActor
@@ -18,22 +18,35 @@ public:
 	// Sets default values for this actor's properties
 	ASprungWheel();
 
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
+
+    void AddDrivingForce(float ForceMagnitude);
+
+    UFUNCTION()
+    void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit);
+
+    void ApplyForce();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    void SetupConstraint();
 
 private:
     UPROPERTY(VisibleAnywhere, Category = "Components")
-    UPhysicsConstraintComponent* PhysicsConstraint = nullptr;
+    UPhysicsConstraintComponent* MassAxleConstraint = nullptr;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
-    UStaticMeshComponent* Chassis = nullptr;
+    UPhysicsConstraintComponent* AxleWheelConstraint = nullptr;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
-    UStaticMeshComponent* Wheel = nullptr;
+    USphereComponent* Wheel = nullptr;
+
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    USphereComponent* Axle = nullptr;
+
+    float TotalForceMagnitudeThisFrame = 0.f;
 
 };
